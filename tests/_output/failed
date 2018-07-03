@@ -1,0 +1,2 @@
+tests/unit/UseCases/AuthenticateSocialLoginUseCaseTest.php:testAuthenticateExistingUser
+tests/unit/UseCases/AuthenticateSocialLoginUseCaseTest.php:testCreateNewUser
