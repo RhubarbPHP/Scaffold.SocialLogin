@@ -1,2 +1,6 @@
-# scaffold-social-login
-base module to allow logging onto a site using social media
+Scaffold.SocialLogin
+---
+Base module to allow Social Media Button modules to be quickly added and used as part of a project. 
+
+
+--- 
