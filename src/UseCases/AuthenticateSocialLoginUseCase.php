@@ -3,11 +3,10 @@
 namespace Rhubarb\Scaffolds\SocialLogin\UseCases;
 
 use Rhubarb\Crown\Exceptions\ImplementationException;
-use Rhubarb\Crown\LoginProviders\Exceptions\LoginFailedException;
-use Rhubarb\Scaffolds\SocialLogin\Entities\AuthenticateSocialLoginEntity;
-use Rhubarb\Scaffolds\SocialLogin\LoginProviders\SocialLoginProvider;
-use Rhubarb\Scaffolds\SocialLogin\Models\SocialLogin;
+use Rhubarb\Scaffolds\Authentication\LoginProviders\LoginProvider;
 use Rhubarb\Scaffolds\Authentication\User;
+use Rhubarb\Scaffolds\SocialLogin\Entities\AuthenticateSocialLoginEntity;
+use Rhubarb\Scaffolds\SocialLogin\Models\SocialLogin;
 use Rhubarb\Stem\Exceptions\RecordNotFoundException;
 use Rhubarb\Stem\Filters\Equals;
 
@@ -16,9 +15,7 @@ class AuthenticateSocialLoginUseCase
 
     /**
      * @param AuthenticateSocialLoginEntity $loginEntity
-     * @return bool
      * @throws ImplementationException
-     * @throws LoginFailedException
      * @throws \Rhubarb\Stem\Exceptions\ModelConsistencyValidationException
      * @throws \Rhubarb\Stem\Exceptions\ModelException
      */
@@ -37,28 +34,40 @@ class AuthenticateSocialLoginUseCase
                 new Equals(SocialLogin::FIELD_IDENTITY_STRING, $identityString),
                 new Equals(SocialLogin::FIELD_SOCIAL_NETWORK, $socialNetwork)
             );
-            LoginUserForSocialNetworkUseCase::execute($socialLogin);
-            return true;
+//            $user = new User($socialLogin->AuthenticationUserID);
         } catch (RecordNotFoundException $e) {
-            if ($email) {
-                try {
+            try {
+                if ($email) {
                     $user = User::findFirst(new Equals("Email", $email));
-                } catch (RecordNotFoundException $exception) {
-                    $user = new User();
-                    $user->Forename = $loginEntity->Forename ?? preg_replace("#@.+$#", "", $email);
-                    $user->Email = $email;
-                    $user->Username = $loginEntity->Username ?? $user->Forename;
-                    $user->save();
+                } else {
+                    throw new RecordNotFoundException(User::class);
                 }
-                $socialLogin = new SocialLogin();
-                $socialLogin->IdentityString = $identityString;
-                $socialLogin->SocialNetwork = $socialNetwork;
-                $socialLogin->AuthenticationUserID = $user->UniqueIdentifier;
-                $socialLogin->save();
-                LoginUserForSocialNetworkUseCase::execute($socialLogin);
-                Return true;
+            } catch (RecordNotFoundException $exception) {
+                $user = self::createNewUser($loginEntity);
             }
+
+            $socialLogin = new SocialLogin();
+            $socialLogin->IdentityString = $identityString;
+            $socialLogin->SocialNetwork = $socialNetwork;
+            $socialLogin->AuthenticationUserID = $user->UniqueIdentifier;
+            $socialLogin->save();
         }
-        return false;
+
+        LoginProvider::getProvider()->forceLogin($user);
+        return true;
+    }
+
+    protected static function createNewUser(AuthenticateSocialLoginEntity $entity)
+    {
+        $user = new User();
+        $user->Email = $entity->email ?? '';
+        // TODO: Confirmation page where we get these?
+        $user->Username =
+            $entity->Username ?? $entity->email ? preg_replace('#@.+$#', '', $entity->email) : 'username';
+        $user->Forename = $entity->Forename ?? 'forename';
+        $user->Surname = $entity->surname ?? 'surname';
+        $user->setNewPassword(uniqid()); // TODO: Confirm and remove
+        $user->save();
+        return $user;
     }
 }

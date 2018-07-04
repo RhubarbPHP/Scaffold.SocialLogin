@@ -9,6 +9,8 @@ class SocialLoginButtonModel extends ControlModel
 {
     public $attemptSocialLoginEvent;
 
+    public $clientSideLoginInfo;
+
     public function __construct()
     {
         $this->attemptSocialLoginEvent = new Event();

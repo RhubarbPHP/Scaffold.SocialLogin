@@ -25,13 +25,19 @@ class AuthenticateSocialLoginEntity
      */
     public $socialNetwork;
 
-
     /**
      * Authentication User Forename
      *
      * @var string $forename
      */
     public $forename;
+
+    /**
+     * Authentication User Surname
+     *
+     * @var string $surname
+     */
+    public $surname;
 
     /**
      * Authentication User Username

@@ -1,15 +1,33 @@
 <?php
 
+namespace Rhubarb\Scaffolds\SocialLogin\Tests;
 
-namespace Rhubarb\Scaffolds\SocialLogin\Tests\UseCases;
-
+use Rhubarb\Crown\Encryption\Aes256ComputedKeyEncryptionProvider;
+use Rhubarb\Crown\Encryption\EncryptionProvider;
+use Rhubarb\Crown\Encryption\HashProvider;
+use Rhubarb\Crown\Encryption\Sha512HashProvider;
+use Rhubarb\Crown\Tests\Fixtures\TestCases\RhubarbTestCase;
+use Rhubarb\Scaffolds\Authentication\LoginProviders\LoginProvider;
+use Rhubarb\Scaffolds\Authentication\User;
 use Rhubarb\Scaffolds\SocialLogin\Entities\AuthenticateSocialLoginEntity;
 use Rhubarb\Scaffolds\SocialLogin\Models\SocialLogin;
-use Rhubarb\Scaffolds\Authentication\User;
+use Rhubarb\Scaffolds\SocialLogin\SocialLoginModule;
 
-trait TestingHelpersTrait
+class SocialLoginTestCase extends RhubarbTestCase
 {
-    private function getNewUser()
+    protected function setUp()
+    {
+        $parent = parent::setUp();
+        $this->application->registerModule(new SocialLoginModule(LoginProvider::class));
+        $this->application->initialiseModules();
+
+        HashProvider::setProviderClassName(Sha512HashProvider::class);
+        EncryptionProvider::setProviderClassName(Aes256ComputedKeyEncryptionProvider::class);
+
+        return $parent;
+    }
+
+    protected function getNewUser()
     {
         $user = new User();
         $user->Email = $this->getRandomEmail();
@@ -19,7 +37,7 @@ trait TestingHelpersTrait
         return $user;
     }
 
-    private function getNewSocialLogin($userId)
+    protected function getNewSocialLogin($userId)
     {
         $socialLogin = new SocialLogin();
         $socialLogin->IdentityString = uniqid();
@@ -29,7 +47,7 @@ trait TestingHelpersTrait
         return $socialLogin;
     }
 
-    private function getNewSocialAuthEntity($identityString = null, $email = null, $socialNetwork = null)
+    protected function getNewSocialAuthEntity($identityString = null, $email = null, $socialNetwork = null)
     {
         $authToken = new AuthenticateSocialLoginEntity();
         $authToken->identityString = $identityString ?? uniqid('Identitystring:');
@@ -38,7 +56,7 @@ trait TestingHelpersTrait
         return $authToken;
     }
 
-    private function getRandomSocialNetwork()
+    protected function getRandomSocialNetwork()
     {
         $arr = [
             'facebook',
@@ -51,7 +69,7 @@ trait TestingHelpersTrait
         return $arr[rand(0, 5)];
     }
 
-    private function getRandomEmail()
+    protected function getRandomEmail()
     {
         return rand(1000, 99999) . '@' . rand(1000, 99999) . '.com';
     }

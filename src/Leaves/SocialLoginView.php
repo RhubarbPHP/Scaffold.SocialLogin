@@ -19,6 +19,12 @@ abstract class SocialLoginView extends LoginView
 
     public function printViewContent()
     {
+        parent::printViewContent();
+        $this->printSocialButtons();
+    }
+
+    protected function printSocialButtons()
+    {
         foreach ($this->getSocialMediaLoginButtons() as $socialMediaLoginButton) {
             print $socialMediaLoginButton;
         }

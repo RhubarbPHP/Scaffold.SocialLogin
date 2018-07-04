@@ -4,28 +4,24 @@ namespace Rhubarb\Scaffolds\SocialLogin\Tests\UseCases;
 
 use Rhubarb\Crown\Exceptions\ImplementationException;
 use Rhubarb\Crown\LoginProviders\Exceptions\LoginFailedException;
-use Rhubarb\Crown\Tests\Fixtures\TestCases\RhubarbTestCase;
 use Rhubarb\Scaffolds\Authentication\LoginProviders\LoginProvider;
-use Rhubarb\Scaffolds\SocialLogin\Models\SocialLogin;
-use Rhubarb\Scaffolds\SocialLogin\UseCases\AuthenticateSocialLoginUseCase;
 use Rhubarb\Scaffolds\Authentication\User;
+use Rhubarb\Scaffolds\SocialLogin\Models\SocialLogin;
+use Rhubarb\Scaffolds\SocialLogin\Tests\SocialLoginTestCase;
+use Rhubarb\Scaffolds\SocialLogin\UseCases\AuthenticateSocialLoginUseCase;
 use Rhubarb\Stem\Filters\Equals;
 
-class AuthenticateSocialLoginUseCaseTest extends RhubarbTestCase
+class AuthenticateSocialLoginUseCaseTest extends SocialLoginTestCase
 {
-    use TestingHelpersTrait;
-
     const
         SOCIAL_NETWORK_TWITTER = 'twitter',
         SOCIAL_NETWORK_FACEBOOK = 'facebook';
 
     public function testAuthenticateExistingUser()
     {
-        verify(is_bool(AuthenticateSocialLoginUseCase::execute($this->getNewSocialAuthEntity())))->true();
-
-        $socialLogin = $this->getNewSocialLogin($uniqId = uniqid('SocialIdentifier-'));
-
-        verify(AuthenticateSocialLoginUseCase::execute($this->getNewSocialAuthEntity($uniqId)))->true();
+        $socialLogin = $this->getNewSocialLogin(99);
+        AuthenticateSocialLoginUseCase::execute($this->getNewSocialAuthEntity($socialLogin->IdentityString));
+        verify(LoginProvider::getLoggedInUser())->notNull();
 
         $user = new User();
         $user->Username = 'laaad';
@@ -56,17 +52,6 @@ class AuthenticateSocialLoginUseCaseTest extends RhubarbTestCase
         AuthenticateSocialLoginUseCase::execute($this->getNewSocialAuthEntity(uniqid('identitystring-'),
             "newuser@email.com"));
         verify(count(User::find(new Equals("Email", "newuser@email.com"))))->equals(1);
-    }
-
-    public function testLoginDenied()
-    {
-        $socialLogin = new SocialLogin();
-        $socialLogin[SocialLogin::FIELD_AUTHENTICATION_USER_ID] = 44;
-        $socialLogin[SocialLogin::FIELD_IDENTITY_STRING] = $uniqId = uniqid('SocialIdentifier-');
-        $socialLogin->save();
-
-        verify(AuthenticateSocialLoginUseCase::execute($this->getNewSocialAuthEntity($socialLogin[SocialLogin::FIELD_IDENTITY_STRING] . 1,
-            '')))->false();
     }
 
     public function testDataCompleteness()
@@ -106,5 +91,26 @@ class AuthenticateSocialLoginUseCaseTest extends RhubarbTestCase
         $socialLogins = SocialLogin::find(new Equals(SocialLogin::FIELD_AUTHENTICATION_USER_ID,
             $user->getUniqueIdentifier()));
         verify($socialLogins->count())->equals(2);
+    }
+
+
+    public function testLogin()
+    {
+        $user = $this->getNewUser();
+        $socialLogin = $this->getNewSocialAuthEntity($user->getUniqueIdentifier());
+        AuthenticateSocialLoginUseCase::execute(
+            $this->getNewSocialAuthEntity(
+                $socialLogin->identityString,
+                $user->Email,
+                $socialLogin->socialNetwork
+            )
+        );
+        verify(LoginProvider::getLoggedInUser()->getUniqueIdentifier())->equals($user->getUniqueIdentifier());
+
+        $user1 = $this->getNewUser();
+        $socialLogin = $this->getNewSocialLogin($user1->getUniqueIdentifier());
+        AuthenticateSocialLoginUseCase::execute($this->getNewSocialAuthEntity(null, ''));
+        verify(LoginProvider::getLoggedInUser()->getUniqueIdentifier())->notEquals($user->getUniqueIdentifier());
+        verify(LoginProvider::getLoggedInUser()->getUniqueIdentifier())->notEquals($user1->getUniqueIdentifier());
     }
 }
