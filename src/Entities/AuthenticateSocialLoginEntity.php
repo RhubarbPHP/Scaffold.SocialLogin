@@ -9,14 +9,14 @@ use Rhubarb\Scaffolds\SocialLogin\Models\SocialLogin;
 class AuthenticateSocialLoginEntity
 {
     /**
+     * @var SocialLogin $socialLogin the social login for a verified user
+     */
+    public $socialLogin;
+
+    /**
      * @var string $identityString
      */
     public $identityString;
-
-    /**
-     * @var string $email
-     */
-    public $email;
 
     /**
      * The name of the social network
@@ -24,6 +24,11 @@ class AuthenticateSocialLoginEntity
      * @var string $socialNetwork
      */
     public $socialNetwork;
+
+    /**
+     * @var string $email
+     */
+    public $email;
 
     /**
      * Authentication User Forename

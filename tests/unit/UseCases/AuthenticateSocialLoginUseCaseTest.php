@@ -93,7 +93,6 @@ class AuthenticateSocialLoginUseCaseTest extends SocialLoginTestCase
         verify($socialLogins->count())->equals(2);
     }
 
-
     public function testLogin()
     {
         $user = $this->getNewUser();

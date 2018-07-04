@@ -4,31 +4,23 @@
 namespace Rhubarb\Scaffolds\SocialLogin;
 
 
+use Rhubarb\Crown\Application;
 use Rhubarb\Crown\Module;
-use Rhubarb\Scaffolds\Authentication\AuthenticationModule;
+use Rhubarb\Scaffolds\SocialLogin\Models\SocialLogin;
 use Rhubarb\Stem\Schema\SolutionSchema;
 
 class SocialLoginModule extends Module
 {
-    private $socialLoginModelClass;
-    private $loginProviderClass;
-
-    public function __construct($loginProviderClass, $socialLoginSchemaClass = SocialLoginAuthenticationSchema::class)
+    public function __construct(string $socialLoginHandlerClassName)
     {
-        $this->loginProviderClass = $loginProviderClass;
-        $this->socialLoginModelClass = $socialLoginSchemaClass;
+        Application::current()->container()->registerClass(SocialLoginHandler::class, $socialLoginHandlerClassName);
     }
 
     protected function initialise()
     {
         SolutionSchema::registerSchema(
             'SocialLoginAuthenticationSchema',
-            $this->socialLoginModelClass
+            SocialLogin::class
         );
-    }
-
-    protected function getModules()
-    {
-        return [new AuthenticationModule($this->loginProviderClass)];
     }
 }
