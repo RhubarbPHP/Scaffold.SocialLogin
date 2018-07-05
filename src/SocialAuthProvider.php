@@ -8,7 +8,7 @@ use Rhubarb\Crown\DependencyInjection\ProviderTrait;
 use Rhubarb\Scaffolds\SocialLogin\Entities\AuthenticateSocialLoginEntity;
 use Rhubarb\Stem\Models\Model;
 
-abstract class SocialLoginProvider implements ProviderInterface
+abstract class SocialAuthProvider implements ProviderInterface
 {
     use ProviderTrait;
     const

@@ -6,7 +6,7 @@ use Rhubarb\Crown\LoginProviders\Exceptions\LoginFailedException;
 use Rhubarb\Leaf\Leaves\Controls\Control;
 use Rhubarb\Scaffolds\SocialLogin\Entities\AuthenticateSocialLoginEntity;
 use Rhubarb\Scaffolds\SocialLogin\Exceptions\SocialLoginFailedException;
-use Rhubarb\Scaffolds\SocialLogin\SocialLoginProvider;
+use Rhubarb\Scaffolds\SocialLogin\SocialAuthProvider;
 use Rhubarb\Scaffolds\SocialLogin\UseCases\SaveSocialLoginUseCase;
 
 /**
@@ -92,7 +92,7 @@ abstract class SocialLoginButton extends Control
         if ($this->serverSideValidateToken($this->getSocialMediaLoginToken())) {
             $entity = $this->createAuthenticateSocialLoginEntity($this->model->clientSideLoginInfo);
             $this->saveSocialLogin($entity);
-            SocialLoginProvider::getProvider()->onSuccess($entity);
+            SocialAuthProvider::getProvider()->onSuccess($entity);
         } else {
             $this->handleServerSideValidationFailure();
         }

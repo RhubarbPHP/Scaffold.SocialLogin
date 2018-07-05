@@ -11,7 +11,7 @@ class SocialLoginModule extends Module
 {
     public function __construct(string $socialLoginProviderClassName)
     {
-        SocialLoginProvider::setProviderClassName($socialLoginProviderClassName);
+        SocialAuthProvider::setProviderClassName($socialLoginProviderClassName);
     }
 
     protected function initialise()

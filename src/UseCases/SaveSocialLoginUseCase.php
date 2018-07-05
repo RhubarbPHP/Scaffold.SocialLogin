@@ -5,7 +5,7 @@ namespace Rhubarb\Scaffolds\SocialLogin\UseCases;
 use Rhubarb\Crown\Exceptions\ImplementationException;
 use Rhubarb\Scaffolds\SocialLogin\Entities\AuthenticateSocialLoginEntity;
 use Rhubarb\Scaffolds\SocialLogin\Models\SocialLogin;
-use Rhubarb\Scaffolds\SocialLogin\SocialLoginProvider;
+use Rhubarb\Scaffolds\SocialLogin\SocialAuthProvider;
 use Rhubarb\Stem\Exceptions\RecordNotFoundException;
 use Rhubarb\Stem\Filters\Equals;
 
@@ -37,9 +37,9 @@ class SaveSocialLoginUseCase
             );
         } catch (RecordNotFoundException $e) {
             try {
-                $user = SocialLoginProvider::getProvider()->loadUser($entity);
+                $user = SocialAuthProvider::getProvider()->loadUser($entity);
             } catch (RecordNotFoundException $exception) {
-                $user = SocialLoginProvider::getProvider()->createUser($entity);
+                $user = SocialAuthProvider::getProvider()->createUser($entity);
             }
             $socialLogin = new SocialLogin();
             $socialLogin->IdentityString = $identityString;

@@ -6,10 +6,10 @@ namespace Rhubarb\Scaffolds\SocialLogin\Tests\Fixtures;
 
 use Rhubarb\Scaffolds\SocialLogin\Entities\AuthenticateSocialLoginEntity;
 use Rhubarb\Scaffolds\SocialLogin\Models\SocialLogin;
-use Rhubarb\Scaffolds\SocialLogin\SocialLoginProvider;
+use Rhubarb\Scaffolds\SocialLogin\SocialAuthProvider;
 use Rhubarb\Stem\Models\Model;
 
-class SocialLoginProviderTest extends SocialLoginProvider
+class SocialAuthProviderTest extends SocialAuthProvider
 {
     /**
      * @param AuthenticateSocialLoginEntity $entity

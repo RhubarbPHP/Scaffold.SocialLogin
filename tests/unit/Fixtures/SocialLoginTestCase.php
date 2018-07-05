@@ -13,7 +13,7 @@ class SocialLoginTestCase extends RhubarbTestCase
     {
         $parent = parent::setUp();
 
-        $this->application->registerModule(new SocialLoginModule(SocialLoginProviderTest::class));
+        $this->application->registerModule(new SocialLoginModule(SocialAuthProviderTest::class));
         $this->application->initialiseModules();
 
         return $parent;
