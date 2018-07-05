@@ -6,7 +6,8 @@ use Rhubarb\Crown\LoginProviders\Exceptions\LoginFailedException;
 use Rhubarb\Leaf\Leaves\Controls\Control;
 use Rhubarb\Scaffolds\SocialLogin\Entities\AuthenticateSocialLoginEntity;
 use Rhubarb\Scaffolds\SocialLogin\Exceptions\SocialLoginFailedException;
-use Rhubarb\Scaffolds\SocialLogin\UseCases\AuthenticateSocialLoginUseCase;
+use Rhubarb\Scaffolds\SocialLogin\SocialLoginProvider;
+use Rhubarb\Scaffolds\SocialLogin\UseCases\SaveSocialLoginUseCase;
 
 /**
  * Class SocialLoginButton
@@ -43,7 +44,8 @@ abstract class SocialLoginButton extends Control
      * @param LoginFailedException $exception
      * @throws LoginFailedException
      */
-    protected function handleLoginFailed(LoginFailedException $exception) {
+    protected function handleLoginFailed(LoginFailedException $exception)
+    {
         throw $exception;
     }
 
@@ -51,7 +53,8 @@ abstract class SocialLoginButton extends Control
      * @param SocialLoginFailedException $exception
      * @throws SocialLoginFailedException
      */
-    protected function handleSocialLoginFailed(SocialLoginFailedException $exception) {
+    protected function handleSocialLoginFailed(SocialLoginFailedException $exception)
+    {
         throw $exception;
     }
 
@@ -67,8 +70,9 @@ abstract class SocialLoginButton extends Control
      * @throws \Rhubarb\Stem\Exceptions\ModelConsistencyValidationException
      * @throws \Rhubarb\Stem\Exceptions\ModelException
      */
-    protected function authenticateSocialLogin($authenticationEntity) {
-        AuthenticateSocialLoginUseCase::execute($authenticationEntity);
+    protected function saveSocialLogin($authenticationEntity)
+    {
+        SaveSocialLoginUseCase::execute($authenticationEntity);
     }
 
     /**
@@ -83,11 +87,12 @@ abstract class SocialLoginButton extends Control
      * @throws \Rhubarb\Stem\Exceptions\ModelConsistencyValidationException
      * @throws \Rhubarb\Stem\Exceptions\ModelException
      */
-    protected function attemptSocialLogin() {
-        $token = $this->getSocialMediaLoginToken();
-        if($this->serverSideValidateToken($token)) {
+    protected function attemptSocialLogin()
+    {
+        if ($this->serverSideValidateToken($this->getSocialMediaLoginToken())) {
             $entity = $this->createAuthenticateSocialLoginEntity($this->model->clientSideLoginInfo);
-            $this->authenticateSocialLogin($entity);
+            $this->saveSocialLogin($entity);
+            SocialLoginProvider::getProvider()->onSuccess($entity);
         } else {
             $this->handleServerSideValidationFailure();
         }

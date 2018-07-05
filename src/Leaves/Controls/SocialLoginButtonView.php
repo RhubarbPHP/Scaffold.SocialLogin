@@ -17,17 +17,19 @@ class SocialLoginButtonView extends ControlView
     {
         $classes = $this->model->getClassAttribute();
         $otherAttributes = $this->model->getHtmlAttributes();
-
         $xhrAttribute = ' xmlrpc="yes"';
+        $text = htmlentities($this->model->text);
 
         print <<<HTML
         <input 
-            leaf-name="<?=$this->model->leafName;?>" 
-            type="<?=$this->model->type?>" 
-            name="<?=$this->model->leafPath;?>"
-            id="<?=$this->model->leafPath;?>" 
-            value="<?=htmlentities($this->model->text);?>"
-            <?=$classes.$otherAttributes.$xhrAttribute;?> 
+            leaf-name="{$this->model->leafName}" 
+            type="{$this->model->type}" 
+            name="{$this->model->leafPath}"
+            id="{$this->model->leafPath}" 
+            value="{$text}"
+            {$classes} 
+            {$otherAttributes} 
+            {$xhrAttribute} 
         />
 HTML;
     }

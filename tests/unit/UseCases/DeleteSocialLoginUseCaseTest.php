@@ -3,16 +3,18 @@
 
 namespace Rhubarb\Scaffolds\SocialLogin\Tests\UseCases;
 
-
 use Rhubarb\Scaffolds\SocialLogin\Models\SocialLogin;
-use Rhubarb\Scaffolds\SocialLogin\Tests\SocialLoginTestCase;
+use Rhubarb\Scaffolds\SocialLogin\Tests\Fixtures\SocialLoginTestCase;
 use Rhubarb\Scaffolds\SocialLogin\UseCases\DeleteSocialLoginUseCase;
 use Rhubarb\Stem\Exceptions\DeleteModelException;
 
 class DeleteSocialLoginUseCaseTest extends SocialLoginTestCase
 {
     public function testDelete() {
-        $socialLogin = $this->getNewSocialLogin(4);
+        $socialLogin = new SocialLogin();
+        $socialLogin->IdentityString = uniqid();
+        $socialLogin->SocialNetwork = uniqid();
+        $socialLogin->save();
         $socialLoginId = $socialLogin->getUniqueIdentifier();
 
         verify(SocialLogin::all()->count())->equals(1);

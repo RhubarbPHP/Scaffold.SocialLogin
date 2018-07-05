@@ -7,6 +7,7 @@ use Rhubarb\Stem\Repositories\MySql\Schema\Columns\MySqlEnumColumn;
 use Rhubarb\Stem\Schema\Columns\AutoIncrementColumn;
 use Rhubarb\Stem\Schema\Columns\ForeignKeyColumn;
 use Rhubarb\Stem\Schema\Columns\StringColumn;
+use Rhubarb\Stem\Schema\Index;
 use Rhubarb\Stem\Schema\ModelSchema;
 
 /**
@@ -44,7 +45,7 @@ class SocialLogin extends Model
             new StringColumn(self::FIELD_SOCIAL_NETWORK, 200, self::SOCIAL_NETWORK_UNKNOWN),
             new StringColumn(self::FIELD_IDENTITY_STRING, 200)
         );
-
+        $model->addIndex(new Index('networkId', Index::INDEX, [self::FIELD_SOCIAL_NETWORK, self::FIELD_IDENTITY_STRING]));
         return $model;
     }
 }

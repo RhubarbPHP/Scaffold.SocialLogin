@@ -5,11 +5,11 @@ namespace Rhubarb\Scaffolds\SocialLogin\UseCases;
 use Rhubarb\Crown\Exceptions\ImplementationException;
 use Rhubarb\Scaffolds\SocialLogin\Entities\AuthenticateSocialLoginEntity;
 use Rhubarb\Scaffolds\SocialLogin\Models\SocialLogin;
-use Rhubarb\Scaffolds\SocialLogin\SocialLoginHandler;
+use Rhubarb\Scaffolds\SocialLogin\SocialLoginProvider;
 use Rhubarb\Stem\Exceptions\RecordNotFoundException;
 use Rhubarb\Stem\Filters\Equals;
 
-class AuthenticateSocialLoginUseCase
+class SaveSocialLoginUseCase
 {
 
     /**
@@ -22,12 +22,12 @@ class AuthenticateSocialLoginUseCase
     {
         $identityString = $entity->identityString;
         if ($identityString == null) {
-            SocialLoginHandler::onFailure($entity, SocialLoginHandler::FAIL_REASON_NO_IDENTITY_STRING);
+            throw new ImplementationException(SocialLogin::SOCIAL_NETWORK_UNKNOWN);
         }
 
         $socialNetwork = $entity->socialNetwork;
-        if ($socialNetwork == null || $socialNetwork == SocialLogin::SOCIAL_NETWORK_UNKNOWN) {
-            SocialLoginHandler::onFailure($entity, SocialLoginHandler::FAIL_REASON_NO_SOCIAL_NETWORK);
+        if ($socialNetwork == null || $socialNetwork === SocialLogin::SOCIAL_NETWORK_UNKNOWN) {
+            throw new ImplementationException(SocialLogin::SOCIAL_NETWORK_UNKNOWN);
         }
 
         try {
@@ -37,9 +37,9 @@ class AuthenticateSocialLoginUseCase
             );
         } catch (RecordNotFoundException $e) {
             try {
-                $user = SocialLoginHandler::loadUser($entity);
+                $user = SocialLoginProvider::getProvider()->loadUser($entity);
             } catch (RecordNotFoundException $exception) {
-                $user = SocialLoginHandler::createUser($entity);
+                $user = SocialLoginProvider::getProvider()->createUser($entity);
             }
             $socialLogin = new SocialLogin();
             $socialLogin->IdentityString = $identityString;
@@ -47,7 +47,6 @@ class AuthenticateSocialLoginUseCase
             $socialLogin->AuthenticationUserID = $user->UniqueIdentifier;
             $socialLogin->save();
         }
-        $entity->socialLogin = $socialLogin;
-        SocialLoginHandler::onSuccess($entity);
+        $entity->authenticationUserId = $socialLogin->AuthenticationUserID;
     }
 }
