@@ -11,7 +11,7 @@
     "facebook",
     "google"
   ],
-  "homepage": ,
+  "homepage": "https://github.com/RhubarbPHP/Scaffold.SocialLogin",
   "license": "Apache-2.0",
   "autoload": {
     "psr-4": {
