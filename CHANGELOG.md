@@ -2,4 +2,6 @@
 
 ### 1.0.0
 
-* Added:      Base TwigView to allow rending a Twig template using Leaf values. 
+* Added:       SaveSocialLoginUseCase for managing social logins connected to a member account
+* Added:       SocialLoginButton for specific social media implementations to hook into this scaffold 
+* Added:       SocialAuthProvider to allow app to integrate with Social Media verification
