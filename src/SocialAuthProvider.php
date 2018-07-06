@@ -11,6 +11,7 @@ use Rhubarb\Stem\Models\Model;
 abstract class SocialAuthProvider implements ProviderInterface
 {
     use ProviderTrait;
+
     const
         FAIL_REASON_NO_SOCIAL_NETWORK = 'no social network specified on entity',
         FAIL_REASON_NO_IDENTITY_STRING = 'no identity string specified on entity';

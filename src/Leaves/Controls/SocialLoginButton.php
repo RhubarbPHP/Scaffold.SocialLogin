@@ -2,6 +2,7 @@
 
 namespace Rhubarb\Scaffolds\SocialLogin\Leaves\Controls;
 
+use Rhubarb\Crown\Events\Event;
 use Rhubarb\Crown\LoginProviders\Exceptions\LoginFailedException;
 use Rhubarb\Leaf\Leaves\Controls\Control;
 use Rhubarb\Scaffolds\SocialLogin\Entities\AuthenticateSocialLoginEntity;
@@ -11,16 +12,24 @@ use Rhubarb\Scaffolds\SocialLogin\UseCases\SaveSocialLoginUseCase;
 
 /**
  * Class SocialLoginButton
- *
+ * @property SocialLoginButtonModel $model
  * @package Rhubarb\Scaffolds\Authentication\SocialLogin\Leaves\Controls
  */
 abstract class SocialLoginButton extends Control
 {
-    /** @var SocialLoginButtonModel $model * */
-    protected $model;
+
+    public $userAuthenticatedEvent;
+
+    public function __construct(?string $name = null, ?callable $initialiseModelBeforeView = null)
+    {
+        parent::__construct($name, $initialiseModelBeforeView);
+        $this->userAuthenticatedEvent = new Event();
+    }
+
 
     protected function createModel()
     {
+
         return new SocialLoginButtonModel();
     }
 
@@ -30,7 +39,8 @@ abstract class SocialLoginButton extends Control
         $this->model->attemptSocialLoginEvent->attachHandler(function ($loginInfo) {
             $this->model->clientSideLoginInfo = $loginInfo;
             try {
-                $this->attemptSocialLogin();
+                $socialLogin = $this->attemptSocialLogin();
+                $this->userAuthenticatedEvent->raise($socialLogin);
                 return true;
             } catch (LoginFailedException $exception) {
                 return $this->handleLoginFailed($exception);
@@ -92,10 +102,15 @@ abstract class SocialLoginButton extends Control
         if ($this->serverSideValidateToken($this->getSocialMediaLoginToken())) {
             $entity = $this->createAuthenticateSocialLoginEntity($this->model->clientSideLoginInfo);
             $this->saveSocialLogin($entity);
-            SocialAuthProvider::getProvider()->onSuccess($entity);
+
+            return $entity;
+
+            //SocialAuthProvider::getProvider()->onSuccess($entity);
         } else {
             $this->handleServerSideValidationFailure();
         }
+
+        return false;
     }
 
     /**

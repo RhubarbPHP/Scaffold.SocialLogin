@@ -20,6 +20,10 @@ class SaveSocialLoginUseCase
      */
     public static function execute(AuthenticateSocialLoginEntity $entity)
     {
+        $socialLogin = new SocialLogin();
+        $socialLogin->IdentityString = $identityString;
+        $socialLogin->SocialNetwork = $socialNetwork;
+        $socialLogin->save();
         $identityString = $entity->identityString;
         if ($identityString == null) {
             throw new ImplementationException(SocialLogin::SOCIAL_NETWORK_UNKNOWN);
@@ -36,17 +40,11 @@ class SaveSocialLoginUseCase
                 new Equals(SocialLogin::FIELD_SOCIAL_NETWORK, $socialNetwork)
             );
         } catch (RecordNotFoundException $e) {
-            try {
-                $user = SocialAuthProvider::getProvider()->loadUser($entity);
-            } catch (RecordNotFoundException $exception) {
-                $user = SocialAuthProvider::getProvider()->createUser($entity);
-            }
             $socialLogin = new SocialLogin();
             $socialLogin->IdentityString = $identityString;
             $socialLogin->SocialNetwork = $socialNetwork;
-            $socialLogin->AuthenticationUserID = $user->UniqueIdentifier;
             $socialLogin->save();
         }
-        $entity->authenticationUserId = $socialLogin->AuthenticationUserID;
+        $entity->socialLoginId = $socialLogin->SocialLoginID;
     }
 }

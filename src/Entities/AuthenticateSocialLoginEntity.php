@@ -17,9 +17,11 @@ class AuthenticateSocialLoginEntity
     public $socialNetwork;
 
     /**
-     * @var int $authenticationUserId
+     * The ID of the record in our SocialLogin table.
+     *
+     * @var int $socialLoginId
      */
-    public $authenticationUserId;
+    public $socialLoginId;
 
     /**
      * Any additional data needed to be carried over from the SDK implementation
