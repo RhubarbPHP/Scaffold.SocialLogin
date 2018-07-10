@@ -18,11 +18,19 @@ use Rhubarb\Scaffolds\SocialLogin\UseCases\SaveSocialLoginUseCase;
 abstract class SocialLoginButton extends Control
 {
 
+    /**
+     * Raised to allow the hosting application to respond to an authentication
+     *
+     * Should return an AuthenticationSuccessResponseEntity to let the client side know where to take the user
+     *
+     * @var Event 
+     */
     public $userAuthenticatedEvent;
 
     public function __construct(?string $name = null, ?callable $initialiseModelBeforeView = null)
     {
         parent::__construct($name, $initialiseModelBeforeView);
+
         $this->userAuthenticatedEvent = new Event();
     }
 
@@ -33,8 +41,7 @@ abstract class SocialLoginButton extends Control
             $this->model->clientSideLoginInfo = $loginInfo;
             if ($this->validateAuthToken()) {
                 $entity = $this->createAuthenticateSocialLoginEntity($this->model->clientSideLoginInfo);
-                $this->userAuthenticatedEvent->raise($entity);
-                return true;
+                return $this->userAuthenticatedEvent->raise($entity);
             } else {
                 $this->handleSocialLoginFailed(new SocialLoginFailedException);
             }

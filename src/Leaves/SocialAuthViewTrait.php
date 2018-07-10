@@ -2,7 +2,9 @@
 
 namespace Rhubarb\Scaffolds\SocialLogin\Leaves;
 
+use Rhubarb\Crown\Events\Event;
 use Rhubarb\Scaffolds\SocialLogin\Entities\AuthenticateSocialLoginEntity;
+use Rhubarb\Scaffolds\SocialLogin\Entities\AuthenticationSuccessResponseEntity;
 use Rhubarb\Scaffolds\SocialLogin\Leaves\Controls\SocialLoginButton;
 use Rhubarb\Scaffolds\SocialLogin\Models\SocialLogin;
 use Rhubarb\Scaffolds\SocialLogin\SocialAuthProvider;
@@ -11,6 +13,18 @@ use Rhubarb\Scaffolds\SocialLogin\UseCases\LoadSocialLoginUseCase;
 
 trait SocialAuthViewTrait
 {
+    /**
+     * Override to provide the behaviour that happens when a social authentication occurs.
+     *
+     * If you need to cause the client to redirect you must return a AuthenticationSuccessResponseEntity with
+     * the url property completed.
+     *
+     * @param SocialLogin $socialLogin
+     * @param AuthenticateSocialLoginEntity $loginEntity
+     * @return AuthenticationSuccessResponseEntity|null
+     */
+    protected abstract function onSocialUserAuthenticated(SocialLogin $socialLogin, AuthenticateSocialLoginEntity $loginEntity);
+
     /**
      * Returns an array of SocialLoginButtons to be included in the login screen.
      *
@@ -38,22 +52,16 @@ trait SocialAuthViewTrait
      */
     protected function onUserAuthenticated(AuthenticateSocialLoginEntity $loginEntity)
     {
-        $authProvider = SocialAuthProvider::getProvider();
         $socialLogin = LoadSocialLoginUseCase::execute($loginEntity);
+
         if ($socialLogin) {
             $loginEntity->authenticationUserId = $socialLogin->AuthenticationUserID;
         }
         else {
-            $user =$authProvider->loadUser($loginEntity);
-            if(!$user)
-            {
-                $user = $authProvider->createUser($loginEntity);
-            }
-            $loginEntity->authenticationUserId = $user->getUniqueIdentifier();
             $socialLogin = CreateSocialLoginUseCase::execute($loginEntity);
         }
-        $authProvider->loginUser($loginEntity);
-        //$authProvider->onSuccess($loginEntity);
+
+        return $this->onSocialUserAuthenticated($socialLogin, $loginEntity);
     }
 
     protected function registerSocialMediaButtons()
@@ -61,8 +69,7 @@ trait SocialAuthViewTrait
         $buttons = $this->getSocialMediaLoginButtons();
         foreach($buttons as $button){
             $button->userAuthenticatedEvent->attachHandler(function(AuthenticateSocialLoginEntity $loginEntity){
-                
-                $this->onUserAuthenticated($loginEntity);
+                return $this->onUserAuthenticated($loginEntity);
             });
             $this->registerSubLeaf($button);
         }

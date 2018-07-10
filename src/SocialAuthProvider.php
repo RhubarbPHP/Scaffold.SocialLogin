@@ -6,6 +6,7 @@ namespace Rhubarb\Scaffolds\SocialLogin;
 use Rhubarb\Crown\DependencyInjection\ProviderInterface;
 use Rhubarb\Crown\DependencyInjection\ProviderTrait;
 use Rhubarb\Scaffolds\SocialLogin\Entities\AuthenticateSocialLoginEntity;
+use Rhubarb\Scaffolds\SocialLogin\Entities\AuthenticationSuccessResponseEntity;
 use Rhubarb\Stem\Models\Model;
 
 abstract class SocialAuthProvider implements ProviderInterface
@@ -19,7 +20,7 @@ abstract class SocialAuthProvider implements ProviderInterface
     /**
      * @param AuthenticateSocialLoginEntity $entity
      */
-    abstract public function onSuccess(AuthenticateSocialLoginEntity $entity);
+    abstract public function onSuccess(AuthenticateSocialLoginEntity $entity): AuthenticationSuccessResponseEntity;
 
     /**
      * @param AuthenticateSocialLoginEntity $entity
