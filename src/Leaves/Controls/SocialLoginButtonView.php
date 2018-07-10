@@ -17,6 +17,7 @@ class SocialLoginButtonView extends ControlView
     {
         $classes = $this->model->getClassAttribute();
         $otherAttributes = $this->model->getHtmlAttributes();
+        $this->model->type = "button";
         $xhrAttribute = ' xmlrpc="yes"';
         $text = htmlentities($this->model->text);
 

@@ -31,9 +31,9 @@ abstract class SocialAuthProvider implements ProviderInterface
      * Load a user based on information provided by the authentication
      *
      * @param AuthenticateSocialLoginEntity $entity
-     * @return Model
+     * @return Model||null
      */
-    abstract public function loadUser(AuthenticateSocialLoginEntity $entity): Model;
+    abstract public function loadUser(AuthenticateSocialLoginEntity $entity);
 
     /**
      * Create and return a new User when they create an account via social media authentication
@@ -42,4 +42,10 @@ abstract class SocialAuthProvider implements ProviderInterface
      * @return Model
      */
     abstract public function createUser(AuthenticateSocialLoginEntity $entity): Model;
+
+    /**
+     * @param AuthenticateSocialLoginEntity $entity
+     * @return mixed
+     */
+    abstract public function loginUser(AuthenticateSocialLoginEntity $entity);
 }

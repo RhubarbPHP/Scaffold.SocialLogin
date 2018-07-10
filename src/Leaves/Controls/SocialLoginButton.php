@@ -26,26 +26,17 @@ abstract class SocialLoginButton extends Control
         $this->userAuthenticatedEvent = new Event();
     }
 
-
-    protected function createModel()
-    {
-
-        return new SocialLoginButtonModel();
-    }
-
     protected function onModelCreated()
     {
         parent::onModelCreated();
         $this->model->attemptSocialLoginEvent->attachHandler(function ($loginInfo) {
             $this->model->clientSideLoginInfo = $loginInfo;
-            try {
-                $socialLogin = $this->attemptSocialLogin();
-                $this->userAuthenticatedEvent->raise($socialLogin);
+            if ($this->validateAuthToken()) {
+                $entity = $this->createAuthenticateSocialLoginEntity($this->model->clientSideLoginInfo);
+                $this->userAuthenticatedEvent->raise($entity);
                 return true;
-            } catch (LoginFailedException $exception) {
-                return $this->handleLoginFailed($exception);
-            } catch (SocialLoginFailedException $exception) {
-                return $this->handleSocialLoginFailed($exception);
+            } else {
+                $this->handleSocialLoginFailed(new SocialLoginFailedException);
             }
         });
     }
@@ -97,20 +88,9 @@ abstract class SocialLoginButton extends Control
      * @throws \Rhubarb\Stem\Exceptions\ModelConsistencyValidationException
      * @throws \Rhubarb\Stem\Exceptions\ModelException
      */
-    protected function attemptSocialLogin()
+    protected function validateAuthToken()
     {
-        if ($this->serverSideValidateToken($this->getSocialMediaLoginToken())) {
-            $entity = $this->createAuthenticateSocialLoginEntity($this->model->clientSideLoginInfo);
-            $this->saveSocialLogin($entity);
-
-            return $entity;
-
-            //SocialAuthProvider::getProvider()->onSuccess($entity);
-        } else {
-            $this->handleServerSideValidationFailure();
-        }
-
-        return false;
+        return ($this->serverSideValidateToken($this->getSocialMediaLoginToken()));
     }
 
     /**
@@ -120,8 +100,13 @@ abstract class SocialLoginButton extends Control
      */
     abstract protected function getSocialMediaLoginToken(): string;
 
-    protected function handleServerSideValidationFailure()
-    {
-
+    /**
+     * Used to set the fields for ths social media api that requests user data.
+     * 
+     * @param array $requiredFields
+     */
+    public function setRequiredFields(array $requiredFields) {
+        $this->model->requiredFields = $requiredFields;
     }
+
 }
