@@ -40,6 +40,7 @@ abstract class SocialLoginButton extends Control
         $this->model->attemptSocialLoginEvent->attachHandler(function ($loginInfo) {
             $this->model->clientSideLoginInfo = $loginInfo;
             if ($this->validateAuthToken()) {
+                //createSocialLoginEntity is abstract, implemented by specific social login buttons
                 $entity = $this->createAuthenticateSocialLoginEntity($this->model->clientSideLoginInfo);
                 return $this->userAuthenticatedEvent->raise($entity);
             } else {
@@ -49,15 +50,8 @@ abstract class SocialLoginButton extends Control
     }
 
     /**
-     * @param LoginFailedException $exception
-     * @throws LoginFailedException
-     */
-    protected function handleLoginFailed(LoginFailedException $exception)
-    {
-        throw $exception;
-    }
-
-    /**
+     * Can be overriden to handle social login failures however you like
+     *
      * @param SocialLoginFailedException $exception
      * @throws SocialLoginFailedException
      */
@@ -67,23 +61,22 @@ abstract class SocialLoginButton extends Control
     }
 
     /**
+     * Must be implemented for each child Social Login Button, eg Facebook, and extract the data required by the
+     *
+     * AuthenticateSocialLoginEntity from the loginInfo retrieved from your social media's API.
+     * 
      * @param $loginInfo
      * @return AuthenticateSocialLoginEntity
      */
     abstract protected function createAuthenticateSocialLoginEntity($loginInfo): AuthenticateSocialLoginEntity;
 
     /**
-     * @param $authenticationEntity
-     * @throws \Rhubarb\Crown\Exceptions\ImplementationException
-     * @throws \Rhubarb\Stem\Exceptions\ModelConsistencyValidationException
-     * @throws \Rhubarb\Stem\Exceptions\ModelException
-     */
-    protected function saveSocialLogin($authenticationEntity)
-    {
-        SaveSocialLoginUseCase::execute($authenticationEntity);
-    }
-
-    /**
+     * Must be implemented by each child Social Login button, eg Facebook
+     *
+     * To prevent account hijacking, we must check that the access token retrieved from the Javascript API
+     *
+     * is actually the token for the logged in social media user.
+     *
      * @param $login
      * @return bool
      */
@@ -101,6 +94,8 @@ abstract class SocialLoginButton extends Control
     }
 
     /**
+     * Extract the social media access token from the login info passed through from javascript and return it
+     * 
      * @param $loginInfo
      * @return string
      * @throws LoginFailedException

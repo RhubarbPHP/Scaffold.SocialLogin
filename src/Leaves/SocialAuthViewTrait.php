@@ -60,7 +60,7 @@ trait SocialAuthViewTrait
         else {
             $socialLogin = CreateSocialLoginUseCase::execute($loginEntity);
         }
-
+        
         return $this->onSocialUserAuthenticated($socialLogin, $loginEntity);
     }
 

@@ -22,7 +22,11 @@ abstract class SocialLoginButtonModel extends ControlModel
         
         $this->requiredFields = static::getRequiredFields();
     }
-    
+
+    /**
+     * The data fields required to successfully create a user in your application, eg email, first name, etc.
+     * @return string
+     */
     abstract protected function getRequiredFields():string;
 
     protected function getExposableModelProperties()

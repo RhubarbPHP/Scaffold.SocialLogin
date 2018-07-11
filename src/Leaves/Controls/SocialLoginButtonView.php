@@ -34,5 +34,4 @@ class SocialLoginButtonView extends ControlView
         />
 HTML;
     }
-
 }

@@ -2,6 +2,13 @@
 
 namespace Rhubarb\Scaffolds\SocialLogin\Entities;
 
+/**
+ * An entity to generically store the various information from different social meda api logins
+ * 
+ * Class AuthenticateSocialLoginEntity
+ * @package Rhubarb\Scaffolds\SocialLogin\Entities
+ */
+
 class AuthenticateSocialLoginEntity
 {
     /**

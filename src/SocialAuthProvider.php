@@ -18,9 +18,11 @@ abstract class SocialAuthProvider implements ProviderInterface
         FAIL_REASON_NO_IDENTITY_STRING = 'no identity string specified on entity';
 
     /**
+     *  Can be overriden to do whatever is desired after a successful login.
+     * 
      * @param AuthenticateSocialLoginEntity $entity
      */
-    abstract public function onSuccess(AuthenticateSocialLoginEntity $entity): AuthenticationSuccessResponseEntity;
+    public function onSuccess(AuthenticateSocialLoginEntity $entity): AuthenticationSuccessResponseEntity{}
 
     /**
      * @param AuthenticateSocialLoginEntity $entity
