@@ -6,6 +6,8 @@ use Rhubarb\Crown\Exceptions\ImplementationException;
 use Rhubarb\Scaffolds\SocialLogin\Entities\AuthenticateSocialLoginEntity;
 use Rhubarb\Scaffolds\SocialLogin\Models\SocialLogin;
 use Rhubarb\Scaffolds\SocialLogin\Tests\Fixtures\SocialLoginTestCase;
+use Rhubarb\Scaffolds\SocialLogin\UseCases\CreateSocialLoginUseCase;
+use Rhubarb\Scaffolds\SocialLogin\UseCases\LoadSocialLoginUseCase;
 use Rhubarb\Scaffolds\SocialLogin\UseCases\SaveSocialLoginUseCase;
 
 class SaveSocialLoginUseCaseTest extends SocialLoginTestCase
@@ -14,19 +16,6 @@ class SaveSocialLoginUseCaseTest extends SocialLoginTestCase
         SOCIAL_NETWORK_TWITTER = 'twitter',
         SOCIAL_NETWORK_FACEBOOK = 'facebook';
 
-    public function testEntityData()
-    {
-        $authEntity = new AuthenticateSocialLoginEntity();
-        $this->expectException(ImplementationException::class);
-        SaveSocialLoginUseCase::execute($authEntity);
-
-        $authEntity->identityString = uniqid();
-        $this->expectException(ImplementationException::class);
-        SaveSocialLoginUseCase::execute($authEntity);
-
-        $authEntity->socialNetwork = self::SOCIAL_NETWORK_FACEBOOK;
-        SaveSocialLoginUseCase::execute($authEntity);
-    }
 
     public function testExistingSocialLogin()
     {
@@ -43,8 +32,8 @@ class SaveSocialLoginUseCaseTest extends SocialLoginTestCase
         $authEntity->identityString = $socialLogin->IdentityString;
         $authEntity->socialNetwork = $socialLogin->SocialNetwork;
 
-        SaveSocialLoginUseCase::execute($authEntity);
-        verify($authEntity->authenticationUserId)->equals($user->getUniqueIdentifier());
+        $testSocialLogin = LoadSocialLoginUseCase::execute($authEntity);
+        verify($testSocialLogin->SocialLoginID)->equals($socialLogin->SocialLoginID);
     }
 
     public function testNewSocialLogin()
@@ -53,16 +42,10 @@ class SaveSocialLoginUseCaseTest extends SocialLoginTestCase
         $authEntity = new AuthenticateSocialLoginEntity();
         $authEntity->identityString = uniqid();
         $authEntity->socialNetwork = uniqid();
-        SaveSocialLoginUseCase::execute($authEntity);
 
-        $userId = null;
-
-        $authEntity = new AuthenticateSocialLoginEntity();
-        $authEntity->identityString = uniqid();
-        $authEntity->socialNetwork = uniqid();
         $logins = count(SocialLogin::all());
-        SaveSocialLoginUseCase::execute($authEntity);
-        verify($authEntity->authenticationUserId)->notEmpty();
+        $socialLogin = CreateSocialLoginUseCase::execute($authEntity);
+
         verify(SocialLogin::all()->count())->greaterThan($logins);
     }
 

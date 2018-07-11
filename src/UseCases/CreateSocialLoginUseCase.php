@@ -30,6 +30,7 @@ class CreateSocialLoginUseCase
         $socialLogin->save();
 
         $entity->socialLoginId = $socialLogin->SocialLoginID;
+        return $socialLogin;
     }
 
 }
