@@ -3,6 +3,7 @@
 namespace Rhubarb\Scaffolds\SocialLogin\Leaves\Controls;
 
 use Rhubarb\Leaf\Leaves\Controls\ControlView;
+use Rhubarb\Leaf\Leaves\LeafDeploymentPackage;
 
 /**
  * Class SocialLoginButtonView
@@ -33,5 +34,15 @@ class SocialLoginButtonView extends ControlView
             {$xhrAttribute} 
         />
 HTML;
+    }
+
+    public function getDeploymentPackage()
+    {
+        return new LeafDeploymentPackage(__DIR__ . '/SocialLoginButtonViewBridge.js');
+    }
+
+    protected function getViewBridgeName()
+    {
+        return 'SocialLoginButtonViewBridge';
     }
 }
