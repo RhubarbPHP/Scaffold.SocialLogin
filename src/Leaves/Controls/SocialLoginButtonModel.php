@@ -18,9 +18,9 @@ abstract class SocialLoginButtonModel extends ControlModel
     public function __construct()
     {
         $this->attemptSocialLoginEvent = new Event();
+        $this->requiredFields = $this->getRequiredFields();
+
         parent::__construct();
-        
-        $this->requiredFields = static::getRequiredFields();
     }
 
     /**
@@ -31,7 +31,10 @@ abstract class SocialLoginButtonModel extends ControlModel
 
     protected function getExposableModelProperties()
     {
-        return array_merge(parent::getExposableModelProperties(), ['requiredFields']);
+        return array_merge(
+            parent::getExposableModelProperties(),
+            ['requiredFields']
+        );
     }
 
 
